@@ -13,11 +13,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 @ServerEndpoint(value = "/chat/{username}", decoders = MessageDecoder.class, encoders = MessageEncoder.class)
 public class ChatEndpoint {
@@ -37,8 +33,8 @@ public class ChatEndpoint {
 
     @OnMessage
     public void onMessage(Session session, Message message) {
-        switch (message.getType()){
-            case CREATE_GROUP:{
+        switch (message.getType()) {
+            case CREATE_GROUP: {
                 Group group = new Group();
                 group.setName(message.getContent());
                 Groups.INSTANCE.groups.add(group);
@@ -56,25 +52,22 @@ public class ChatEndpoint {
 
                     // Iterate through the users in the group and send the message to each user
                     for (User user : group.getUsers()) {
-                        // Skip sending the message to the sender
-                        if (!user.getSession().equals(session)) {
-                            // Create a new message for each user in the group
-                            Message groupMessage = new Message();
-                            groupMessage.setType(MessageType.MESSAGE_TO_GROUP);
-                            groupMessage.setFrom(message.getFrom()); // Set the sender
-                            groupMessage.setTo(groupName);
-                            groupMessage.setContent(message.getContent()); // Set the message content
+                        // Create a new message for each user in the group
+                        Message groupMessage = new Message();
+                        groupMessage.setType(MessageType.MESSAGE_TO_GROUP);
+                        groupMessage.setFrom(message.getFrom()); // Set the sender
+                        groupMessage.setTo(groupName);
+                        groupMessage.setContent(message.getContent()); // Set the message content
 
-                            // Send the message to the user
-                            sendMessage(user.getSession(), groupMessage);
-                        }
+                        // Send the message to the user
+                        sendMessage(user.getSession(), groupMessage);
                     }
                 }
             }
             break;
             case ADD_TO_GROUP: {
                 /* Message.to: group
-                *  Message.content: username */
+                 *  Message.content: username */
                 String groupName = message.getTo();
                 Optional<Group> firstGroup = Groups.INSTANCE.groups
                         .stream()
@@ -86,16 +79,17 @@ public class ChatEndpoint {
                         .filter(user -> user.getName().equals(message.getContent()))
                         .findFirst();
 
-                if(firstGroup.isPresent() && firstUser.isPresent()){
+                if (firstGroup.isPresent() && firstUser.isPresent()) {
                     firstGroup.get().getUsers().add(firstUser.get());
                 }
             }
+            break;
             case VIEW_ALL_GROUPS: {
                 String groups = Groups.INSTANCE.groups
                         .stream()
-                        .map(Group::toString)
+                        .map(Group::getName)
                         .reduce((s, s2) -> s + ", " + s2)
-                        .get();
+                        .orElse("");
 
                 Message allGroupsMessage = new Message();
                 allGroupsMessage.setContent(groups);
@@ -131,7 +125,7 @@ public class ChatEndpoint {
         System.out.println("Error " + throwable);
     }
 
-    private static void broadcast(Message message)  {
+    private static void broadcast(Message message) {
         // chatEndpoints.forEach(endpoint -> {
         //     synchronized (endpoint) {
         //         try {
@@ -144,7 +138,7 @@ public class ChatEndpoint {
         // });
     }
 
-    private void sendMessage(Message message){
+    private void sendMessage(Message message) {
         try {
             session.getBasicRemote().sendObject(message);
         } catch (IOException | EncodeException e) {
@@ -152,7 +146,7 @@ public class ChatEndpoint {
         }
     }
 
-    private void sendMessage(Session session, Message message){
+    private void sendMessage(Session session, Message message) {
         try {
             session.getBasicRemote().sendObject(message);
         } catch (IOException | EncodeException e) {

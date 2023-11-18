@@ -40,6 +40,9 @@ public class WebsocketClient {
             case VIEW_ALL_GROUPS: {
                 System.out.println(message.getContent());
             }
+            case MESSAGE_TO_GROUP: {
+                System.out.println(message.getContent());
+            }
             case CREATE_GROUP: {
 
             }
