@@ -19,6 +19,10 @@ function connect() {
                 console.log(message)
                 log.innerHTML += `${message.from} (${message.to}) : ${message.content}\n`;
                 break;
+            case "private_message":
+                console.log(message)
+                log.innerHTML += `${message.from} (private) : ${message.content}\n`;
+                break;
             case "view_all_users":
                 let users = message.content.split(", ");
                 console.log(users)
@@ -35,7 +39,7 @@ function connect() {
     }
 }
 
-function send() {
+function sendToGroup() {
     let selectedGroup = document.getElementById("groupDropdownToSendTo").value;
 
     let content = document.getElementById("msg").value;
@@ -44,6 +48,23 @@ function send() {
         "to": selectedGroup,
         "from": username,
         "type": "message_to_group"
+    });
+
+    ws.send(json);
+
+    /* Clear massage input area */
+    document.getElementById("msg").value = "";
+}
+
+function sendToUser() {
+    let selectedUser = document.getElementById("userDropdownToSendTo").value;
+
+    let content = document.getElementById("msg").value;
+    let json = JSON.stringify({
+        "content": content,
+        "to": selectedUser,
+        "from": username,
+        "type": "private_message"
     });
 
     ws.send(json);
@@ -119,6 +140,17 @@ function bindUsersToDropdown(users) {
         option.value = user;
         option.text = user;
         dropdown.add(option);
+    });
+
+    let dropdown2 = document.getElementById("userDropdownToSendTo");
+    dropdown2.innerHTML = ""; // Clear existing options
+
+    // Create and append options to the dropdown
+    users.forEach(function (user) {
+        let option = document.createElement("option");
+        option.value = user;
+        option.text = user;
+        dropdown2.add(option);
     });
 }
 

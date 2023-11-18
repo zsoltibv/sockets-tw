@@ -6,6 +6,9 @@ public enum MessageType {
     @SerializedName("message_to_group")
     MESSAGE_TO_GROUP("message_to_group"),
 
+    @SerializedName("private_message")
+    PRIVATE_MESSAGE("private_message"),
+
     @SerializedName("create_group")
     CREATE_GROUP("create_group"),
 

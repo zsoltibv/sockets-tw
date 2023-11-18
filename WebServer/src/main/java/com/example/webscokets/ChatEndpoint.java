@@ -24,10 +24,23 @@ public class ChatEndpoint {
     @OnOpen
     public void onOpen(Session session, @PathParam("username") String username) {
         this.session = session;
-        User user = new User();
-        user.setName(username);
-        user.setSession(session);
-        Users.INSTANCE.users.add(user);
+        Optional<User> existingUserOptional = Users.INSTANCE.users
+                .stream()
+                .filter(user -> user.getName().equals(username))
+                .findFirst();
+
+        if (existingUserOptional.isPresent()) {
+            // If the user already exists, update the session
+            User existingUser = existingUserOptional.get();
+            existingUser.setSession(session);
+        } else {
+            // If the user does not exist, create a new user
+            User newUser = new User();
+            newUser.setName(username);
+            newUser.setSession(session);
+            Users.INSTANCE.users.add(newUser);
+        }
+
         System.out.println("User: " + username);
     }
 
@@ -68,6 +81,37 @@ public class ChatEndpoint {
                             sendMessage(user.getSession(), groupMessage);
                         }
                     }
+                }
+            }
+            break;
+            case PRIVATE_MESSAGE: {
+                String recipientName = message.getTo();
+                String senderName = message.getFrom();
+                String content = message.getContent();
+
+                Optional<User> recipientOptional = Users.INSTANCE.users
+                        .stream()
+                        .filter(user -> user.getName().equals(recipientName))
+                        .findFirst();
+
+                Optional<User> senderOptional = Users.INSTANCE.users
+                        .stream()
+                        .filter(user -> user.getName().equals(senderName))
+                        .findFirst();
+
+                if (recipientOptional.isPresent()) {
+                    User recipient = recipientOptional.get();
+                    User sender = senderOptional.get();
+
+                    // Create a new message for the recipient
+                    Message privateMessage = new Message();
+                    privateMessage.setType(MessageType.PRIVATE_MESSAGE);
+                    privateMessage.setFrom(senderName);
+                    privateMessage.setContent(content);
+
+                    // Send the private message to the recipient
+                    sendMessage(recipient.getSession(), privateMessage);
+                    sendMessage(sender.getSession(), privateMessage);
                 }
             }
             break;

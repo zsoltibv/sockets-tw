@@ -38,8 +38,15 @@
                                placeholder="Send a message"
                                aria-label="Insert a message"
                                aria-describedby="button-addon2">
-                        <select id="groupDropdownToSendTo" class="form-control"></select>
-                        <button class="btn btn-outline-secondary" type="button" onclick="send();">Send
+                        <select id="userDropdownToSendTo" class="form-control">
+                            <option>none</option>
+                        </select>
+                        <button class="btn btn-outline-secondary" type="button" onclick="sendToUser();">Send To User
+                        </button>
+                        <select id="groupDropdownToSendTo" class="form-control">
+                            <option>none</option>
+                        </select>
+                        <button class="btn btn-outline-secondary" type="button" onclick="sendToGroup();">Send To Group
                         </button>
                     </div>
                 </div>
