@@ -158,3 +158,16 @@ function addToGroup(){
 
     ws.send(json);
 }
+
+function removeFromGroup(){
+    let selectedUser = document.getElementById("userDropdown").value;
+    let selectedGroup = document.getElementById("groupDropdown").value;
+
+    let json = JSON.stringify({
+        "to": selectedGroup,
+        "content": selectedUser,
+        "type": "remove_from_group",
+    });
+
+    ws.send(json);
+}

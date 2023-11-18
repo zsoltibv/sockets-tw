@@ -17,6 +17,9 @@ public enum MessageType {
     @SerializedName("add_to_group")
     ADD_TO_GROUP("add_to_group"),
 
+    @SerializedName("remove_from_group")
+    REMOVE_FROM_GROUP("remove_from_group"),
+
     @SerializedName("disconnect")
     DISCONNECT("disconnect"),
     @SerializedName("undefined")

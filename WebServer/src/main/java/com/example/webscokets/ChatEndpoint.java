@@ -50,17 +50,23 @@ public class ChatEndpoint {
                 if (groupOptional.isPresent()) {
                     Group group = groupOptional.get();
 
-                    // Iterate through the users in the group and send the message to each user
-                    for (User user : group.getUsers()) {
-                        // Create a new message for each user in the group
-                        Message groupMessage = new Message();
-                        groupMessage.setType(MessageType.MESSAGE_TO_GROUP);
-                        groupMessage.setFrom(message.getFrom()); // Set the sender
-                        groupMessage.setTo(groupName);
-                        groupMessage.setContent(message.getContent()); // Set the message content
+                    boolean senderInGroup = group.getUsers()
+                            .stream()
+                            .anyMatch(user -> user.getName().equals(message.getFrom()));
 
-                        // Send the message to the user
-                        sendMessage(user.getSession(), groupMessage);
+                    if (senderInGroup) {
+                        // Iterate through the users in the group and send the message to each user
+                        for (User user : group.getUsers()) {
+                            // Create a new message for each user in the group
+                            Message groupMessage = new Message();
+                            groupMessage.setType(MessageType.MESSAGE_TO_GROUP);
+                            groupMessage.setFrom(message.getFrom()); // Set the sender
+                            groupMessage.setTo(groupName);
+                            groupMessage.setContent(message.getContent()); // Set the message content
+
+                            // Send the message to the user
+                            sendMessage(user.getSession(), groupMessage);
+                        }
                     }
                 }
             }
@@ -81,6 +87,21 @@ public class ChatEndpoint {
 
                 if (firstGroup.isPresent() && firstUser.isPresent()) {
                     firstGroup.get().getUsers().add(firstUser.get());
+                }
+            }
+            break;
+            case REMOVE_FROM_GROUP: {
+                String groupName = message.getTo();
+                String userNameToRemove = message.getContent();
+
+                Optional<Group> groupOptional = Groups.INSTANCE.groups
+                        .stream()
+                        .filter(group -> group.getName().equals(groupName))
+                        .findFirst();
+
+                if (groupOptional.isPresent()) {
+                    Group group = groupOptional.get();
+                    group.getUsers().removeIf(user -> user.getName().equals(userNameToRemove));
                 }
             }
             break;
